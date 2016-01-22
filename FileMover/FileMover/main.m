@@ -15,10 +15,10 @@ BOOL isSuccessReplace(NSString* destFile , NSString* sourceFile)
     if ([fileManager fileExistsAtPath:destFile])
     {
         // delete
-        BOOL isDelete = [fileManager removeItemAtPath:destFile error:nil];
+        BOOL isDelete = [fileManager removeItemAtPath:destFile error:nil]; // delete old one
 //        NSLog(@"%@ isDelete  %u", destFile, isDelete);
         // replace
-        BOOL isCopy = [fileManager copyItemAtPath: sourceFile toPath:destFile error:nil];
+        BOOL isCopy = [fileManager copyItemAtPath: sourceFile toPath:destFile error:nil]; // copy new one
 //        NSLog(@"%@ isCopy  %u", sourceFile, isCopy);
         NSLog(@"%u (%u&&%u) = isDelete && isCopy  destFile=%@   sourceFile=%@", isDelete && isCopy, isDelete, isCopy, destFile, sourceFile);
         return YES;
@@ -56,7 +56,7 @@ int main(int argc, const char * argv[]) {
     
     @autoreleasepool
     {
-        NSString* fileListPath = @"/Users/vin/sourceList.m";
+        NSString* fileListPath = @"/Users/vin/sourceList.m"; // Contains the source file name list.
         NSString* fileListConent = [NSString stringWithContentsOfFile:fileListPath encoding:NSUTF8StringEncoding error:nil];
         NSMutableDictionary* sourceFilesDic = [[NSMutableDictionary alloc] init];
         for (NSString* line in [fileListConent componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]])
@@ -68,22 +68,22 @@ int main(int argc, const char * argv[]) {
             NSString* fileName = [line lastPathComponent];
             if (![sourceFilesDic doesContain:fileName])
             {
-                [sourceFilesDic setObject:[NSString stringWithFormat:@"/Users/vin/XX2/%@", line] forKey:fileName];
+                [sourceFilesDic setObject:[NSString stringWithFormat:@"/Users/vin/XX2/%@", line] forKey:fileName]; // The source file full path.
             }
         }
         
         NSFileManager* fileManager = [NSFileManager defaultManager];
-        NSString* destPath = @"/Users/vin/XX1";
+        NSString* destPath = @"/Users/vin/XX1"; // The destination file folder
         // search then replace
         [sourceFilesDic enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop)
          {
              NSArray* paths = [fileManager subpathsAtPath:destPath];
              for (int i = 0; i < paths.count; i++)
              {
-                 NSString* lFileName = [((NSString*)paths[i]) lastPathComponent];
+                 NSString* lFileName = [((NSString*)paths[i]) lastPathComponent]; 
                  if ([lFileName isEqualToString:(NSString *)key]) // same filename
                  {
-                     isSuccessReplace([destPath stringByAppendingFormat:@"/%@", paths[i]], (NSString*) obj);
+                     isSuccessReplace([destPath stringByAppendingFormat:@"/%@", paths[i]], (NSString*) obj); // replace the same name file
                  }
                  
              }
