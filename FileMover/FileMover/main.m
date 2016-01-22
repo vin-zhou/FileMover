@@ -2,35 +2,94 @@
 //  main.m
 //  FileMover
 //
-//  Created by Zhou, Wenshan on 5/20/15.
+//  Created by Vin on 5/20/15.
 //  Copyright (c) 2015 MicroStrategy. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
+
+BOOL isSuccessReplace(NSString* destFile , NSString* sourceFile)
+{
+    NSFileManager* fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:destFile])
+    {
+        // delete
+        BOOL isDelete = [fileManager removeItemAtPath:destFile error:nil];
+//        NSLog(@"%@ isDelete  %u", destFile, isDelete);
+        // replace
+        BOOL isCopy = [fileManager copyItemAtPath: sourceFile toPath:destFile error:nil];
+//        NSLog(@"%@ isCopy  %u", sourceFile, isCopy);
+        NSLog(@"%u (%u&&%u) = isDelete && isCopy  destFile=%@   sourceFile=%@", isDelete && isCopy, isDelete, isCopy, destFile, sourceFile);
+        return YES;
+    }
+    else
+        return NO;
+}
+
+//BOOL isSuccessTraverse(NSString* destPath, NSString* fileName, NSString* sourceFilePath)
+//{
+//    
+//    BOOL isSuccess = isSuccessReplace([destPath stringByAppendingFormat:@"/%@", fileName], sourceFilePath);
+//    if (isSuccess)
+//    {
+//        return isSuccess;
+//    }
+//    else
+//    {
+//        NSFileManager* fileManager = [NSFileManager defaultManager];
+//        NSArray* paths = [fileManager subpathsAtPath:destPath];
+//        for (int i = 0; i < paths.count; i++)
+//        {
+//            isSuccess = isSuccessTraverse(paths[i], fileName, sourceFilePath);
+//            if (isSuccess)
+//            {
+//                break;
+//            }
+//        }
+//        return isSuccess;
+//    }
+//}
+
+
 int main(int argc, const char * argv[]) {
     
     @autoreleasepool
     {
-        NSFileManager* fManager = [NSFileManager defaultManager];
-        NSString* fileListPath = @"";
+        NSString* fileListPath = @"/Users/vin/sourceList.m";
         NSString* fileListConent = [NSString stringWithContentsOfFile:fileListPath encoding:NSUTF8StringEncoding error:nil];
         NSMutableDictionary* sourceFilesDic = [[NSMutableDictionary alloc] init];
-        for (NSString* line in [fileListPath componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]])
+        for (NSString* line in [fileListConent componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]])
         {
+            if ([line isEqualToString:@""])
+            {
+                continue;
+            }
             NSString* fileName = [line lastPathComponent];
             if (![sourceFilesDic doesContain:fileName])
             {
-                [sourceFilesDic setObject:[NSString stringWithFormat:@"/%@", line] forKey:fileName];
+                [sourceFilesDic setObject:[NSString stringWithFormat:@"/Users/vin/XX2/%@", line] forKey:fileName];
             }
         }
         
+        NSFileManager* fileManager = [NSFileManager defaultManager];
+        NSString* destPath = @"/Users/vin/XX1";
         // search then replace
-        
+        [sourceFilesDic enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop)
+         {
+             NSArray* paths = [fileManager subpathsAtPath:destPath];
+             for (int i = 0; i < paths.count; i++)
+             {
+                 NSString* lFileName = [((NSString*)paths[i]) lastPathComponent];
+                 if ([lFileName isEqualToString:(NSString *)key]) // same filename
+                 {
+                     isSuccessReplace([destPath stringByAppendingFormat:@"/%@", paths[i]], (NSString*) obj);
+                 }
+                 
+             }
+             
+         }];
 
-        
-        
-        
         
     }
     return 0;
